@@ -1,0 +1,29 @@
+---
+- name: Create broker config file
+  template:
+    src: templates/config.j2
+    dest: /data/mq_admin/rocketmq-all-4.5.1/conf/eidbroker.config
+    owner: mq_admin
+    group: wheel
+    mode: 0644
+
+- name: Create command file
+  template:
+    src: templates/runmqbroker.j2
+    dest: /usr/local/sbin/runmqbroker
+    owner: mq_admin
+    group: wheel
+    mode: 0755
+
+- name: Create rocketmq broker service
+  template:
+    src: templates/broker.j2
+    dest: /etc/systemd/system/rmqbroker.service
+    owner: mq_admin
+    group: wheel
+    mode: 0644
+
+- name: Start smart_agent service
+  shell: |
+    sudo systemctl daemon-reload
+    sudo systemctl enable rmqbroker.service

@@ -1,0 +1,10 @@
+[Unit]
+Description=Rocketmq Nameserver Service
+After=defaut.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/sbin/runmqnamesrv
+
+[Install]
+WantedBy=defaut.target

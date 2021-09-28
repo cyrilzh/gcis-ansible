@@ -1,0 +1,12 @@
+[Unit]
+Description=Rocketmq Broker Service
+After=network.target
+
+
+[Service]
+Type=forking
+ExecStart=/usr/local/sbin/runmqbroker
+ExecStop=sh /data/mq_admin/rocketmq-all-4.5.1/bin/mqshutdown broker
+
+[Install]
+WantedBy=multi-user.target
