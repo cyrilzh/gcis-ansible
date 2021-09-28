@@ -1,0 +1,33 @@
+E:\playground\eid\gcis\ansible\local_ansible>python prepareinventory.py -h
+usage: prepareinventory.py [-h] -l LOG [-m MODE] [-p PATH] [-i INVENTORY] [-e ENVIRONMENT] [-b BATCH] [-n NETWORK]
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+  -l LOG, --log LOG     指定需要导入的csv文件路径，工具将根据此文件生成Ansible Inventory的host_vars和Inventory文件。csv文件从Migration Request Form的IaaS Request标签页中导出。
+
+  -m MODE, --mode MODE  指定产生的Ansible Inventory数据种类，H代表仅产生host_var数据；I代表仅产生包含Ansible需要访问的IP和端口的Inventory文件；A为默认选项，代表同时开启H和I。
+
+  -p PATH, --path PATH  指定输出文件的保存路径，默认为当前路径。
+
+  -i INVENTORY, --inventory INVENTORY
+                        指定Inventory文件的名称，默认为hosts.yml。
+
+  -e ENVIRONMENT, --environment ENVIRONMENT
+                        指定所生成的Inventory中的虚拟机属于哪一个机房，P1还是P2。
+
+  -b BATCH, --batch BATCH
+                        指定所生成的Inventory中的虚拟机属于哪一个部署批次，有效值为2到10以及3A。
+
+  -n NETWORK, --network NETWORK
+                        指定Ansible从哪一个网络访问目标虚拟机，VPN还是内网。选择VPN的时候，将使用各虚拟机的PNAT IP和端口。
+
+
+命令样例：python prepareinventory.py -l "GCIS Migration Request Form of CCCVI (iAM Smart)_v1.18.3 IaaS.csv" -e p1 -b 4 -p . -m h -n VPN
+
+-l "GCIS Migration Request Form of CCCVI (iAM Smart)_v1.18.3 IaaS.csv"：	使用"GCIS Migration Request Form of CCCVI (iAM Smart)_v1.18.3 IaaS.csv"文件
+-e p1：										生成P1机房的VM Inventory文件
+-b 4：										Inventory中只包含第四批VM
+-p .：										输出结果保存在在当前路径下
+-m h：										仅生成Inventory文件（不包含host_vars）
+-n VPN:										Ansible通过VPN访问vm，使用PNAT的IP和Port
