@@ -39,7 +39,7 @@ def env_arg(string):
 
 def batch_arg(string):
     result = string.upper()
-    if result in ('', '2', '3', '3A', '3a', '4', '5', '6', '7', '8', '9', '10'):
+    if result in ("", '2', '3', '3A', '4', '5', '6', '7', '8', '9', '10'):
         return result
     else:
         raise ValueError(
@@ -62,6 +62,13 @@ def file_path(string):
         raise FileNotFoundError(string)
 
 
+def match_batch(row_batch, args_batch):
+    if args_batch == "":
+        return True
+    else:
+        return row_batch == "Batch "+args_batch
+
+
 # generate_hostvar 用于生成host_var目录下的文件
 def generate_hostvar(args):
     output_path = os.path.join(
@@ -70,16 +77,17 @@ def generate_hostvar(args):
     with open(args.log) as csvfile:
         csvreader = csv.DictReader(csvfile, delimiter=',')
         for row in csvreader:
-            if row[target_env].lower() == args.environment.lower() and row[batch].startswith("Batch "+args.batch):
+            if row[target_env].lower() == args.environment.lower() and match_batch(row[batch], args.batch):
                 with open(os.path.join(output_path, row[new_name]), 'w') as f:
                     f.write('legacyName: "'+str.strip(row[legacy_name])+'"\n')
                     f.write('newName: "'+str.strip(row[new_name])+'"\n')
                     f.write('newIP: "'+str.strip(row[new_IP])+'"\n')
     return
 
-
 # generate_inventory_file 用于生成yml格式的inventory文件，包括Ansible IP和端口。
 # 所生成的文件只有一个Linux组
+
+
 def generate_inventory_file(args):
     output_path = os.path.join(
         args.path, args.environment+"_"+args.network, args.batch)
@@ -89,7 +97,7 @@ def generate_inventory_file(args):
         f.write('all:\n'+' '*2+'hosts:\n'+' '*2+'children:\n' +
                 ' '*4+'linux:\n'+' '*6+'hosts:\n')
         for row in csvreader:
-            if row[target_env].lower() == args.environment.lower() and row[batch].startswith("Batch "+args.batch):
+            if row[target_env].lower() == args.environment.lower() and match_batch(row[batch], args.batch):
                 f.write(' '*8+row[new_name]+':\n')
                 if args.network == "intranet":
                     f.write(' '*10+'ansible_host: '+row[new_IP]+'\n')
@@ -103,6 +111,8 @@ def generate_inventory_file(args):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('-v', '--version', action='version',
+                        version='%(prog)s 1.0')
     parser.add_argument(
         '-l',
         '--log',
