@@ -27,3 +27,44 @@
   shell: |
     sudo systemctl daemon-reload
     sudo systemctl enable rmqbroker.service
+
+- name: Creates etc rocketmq directory
+  file:
+    path: /etc/rocketmq
+    state: directory
+    mode: "0755"
+    owner: mq_admin
+    group: mq_admin
+
+- name: Create tls.properties
+  template:
+    src: templates/tls.properties.j2
+    dest: /etc/rocketmq/tls.properties
+    owner: mq_admin
+    group: wheel
+    mode: "0644"
+
+- name: Copy Certificate files
+  copy:
+    src: "{{ item }}"
+    dest: /etc/rocketmq
+    mode: "0644"
+    owner: mq_admin
+  with_fileglob:
+    - files/*
+
+# config java.security file
+- name: Disable TLSv1 TLSv1.1 in java.security
+  lineinfile:
+    path: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.252.b09-2.el7_8.x86_64/jre/lib/security/java.security
+    regexp: "^(.*)jdk.tls.disabledAlgorithms=(.*)$"
+    line: 'jdk.tls.disabledAlgorithms=SSLv3, RC4, DES, MD5withRSA, TLSv1, TLSv1.1, DH keySize < 1024, \\'
+    backrefs: yes
+    backup: yes
+
+# remove openssl library
+- name: Remove openssl library
+  file:
+    path: /data/mq_admin/rocketmq-all-4.5.1/lib/netty-tcnative-boringssl-static-1.1.33.Fork26.jar
+    state: absent
+    force: yes
