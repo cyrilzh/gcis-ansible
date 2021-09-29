@@ -92,12 +92,14 @@ def generate_inventory_file(args):
     output_path = os.path.join(
         args.path, args.environment+"_"+args.network, args.batch)
     os.makedirs(output_path, exist_ok=True)
+    matched_vm_count = 0
     with open(args.log) as csvfile, open(os.path.join(output_path, args.inventory), 'w') as f:
         csvreader = csv.DictReader(csvfile, delimiter=',')
         f.write('all:\n'+' '*2+'hosts:\n'+' '*2+'children:\n' +
                 ' '*4+'linux:\n'+' '*6+'hosts:\n')
         for row in csvreader:
             if row[target_env].lower() == args.environment.lower() and match_batch(row[batch], args.batch):
+                matched_vm_count = matched_vm_count+1
                 f.write(' '*8+row[new_name]+':\n')
                 if args.network == "intranet":
                     f.write(' '*10+'ansible_host: '+row[new_IP]+'\n')
@@ -106,13 +108,14 @@ def generate_inventory_file(args):
                     f.write(' '*10+'ansible_host: '+row[pnat_ip]+'\n')
                     f.write(' '*10+'ansible_port: '+row[pnat_port]+'\n')
                 f.write(' '*10+'ansible_user: pa_eidsvc\n')
+    print("共处理了%d个VM" % (matched_vm_count))
     return
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--version', action='version',
-                        version='%(prog)s 1.0')
+                        version='%(prog)s 1.0.1')
     parser.add_argument(
         '-l',
         '--log',
