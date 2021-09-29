@@ -72,12 +72,12 @@ def match_batch(row_batch, args_batch):
 # generate_hostvar 用于生成host_var目录下的文件
 def generate_hostvar(args):
     output_path = os.path.join(
-        args.path, args.environment+"_"+args.network, args.batch, 'host_vars')
+        args.path, args.environment+"_"+args.network, args.batch, args.vm_name, 'host_vars')
     os.makedirs(output_path, exist_ok=True)
     with open(args.log) as csvfile:
         csvreader = csv.DictReader(csvfile, delimiter=',')
         for row in csvreader:
-            if row[target_env].lower() == args.environment.lower() and match_batch(row[batch], args.batch):
+            if row[target_env].lower() == args.environment.lower() and args.vm_name in row[new_name] and match_batch(row[batch], args.batch):
                 with open(os.path.join(output_path, row[new_name]), 'w') as f:
                     f.write('legacyName: "'+str.strip(row[legacy_name])+'"\n')
                     f.write('newName: "'+str.strip(row[new_name])+'"\n')
@@ -90,7 +90,7 @@ def generate_hostvar(args):
 
 def generate_inventory_file(args):
     output_path = os.path.join(
-        args.path, args.environment+"_"+args.network, args.batch)
+        args.path, args.environment+"_"+args.network, args.batch, args.vm_name)
     os.makedirs(output_path, exist_ok=True)
     matched_vm_count = 0
     with open(args.log) as csvfile, open(os.path.join(output_path, args.inventory), 'w') as f:
@@ -98,7 +98,7 @@ def generate_inventory_file(args):
         f.write('all:\n'+' '*2+'hosts:\n'+' '*2+'children:\n' +
                 ' '*4+'linux:\n'+' '*6+'hosts:\n')
         for row in csvreader:
-            if row[target_env].lower() == args.environment.lower() and match_batch(row[batch], args.batch):
+            if row[target_env].lower() == args.environment.lower() and args.vm_name in row[new_name] and match_batch(row[batch], args.batch):
                 matched_vm_count = matched_vm_count+1
                 f.write(' '*8+row[new_name]+':\n')
                 if args.network == "intranet":
@@ -115,7 +115,7 @@ def generate_inventory_file(args):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--version', action='version',
-                        version='%(prog)s 1.0.1')
+                        version='%(prog)s 1.0.2')
     parser.add_argument(
         '-l',
         '--log',
@@ -158,6 +158,11 @@ def main():
         help='指定Ansible从哪一个网络访问目标虚拟机，VPN还是内网。选择VPN的时候，将使用各虚拟机的PNAT IP和端口。默认选项是Intranet',
         type=network_arg,
         default="Intranet")
+    parser.add_argument(
+        '-vn',
+        '--vm_name',
+        help='通过GCIS中的虚拟机名称中是否包含指定字符串对VM进行过滤',
+        type=str)
 
     args = parser.parse_args()
 
