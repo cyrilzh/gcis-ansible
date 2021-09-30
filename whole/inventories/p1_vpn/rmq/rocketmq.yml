@@ -1,0 +1,82 @@
+all:
+  children:
+    Testing_public:
+      children:
+        nameserver:
+          hosts:
+            aulrmq04:
+              ansible_host: 172.17.10.135
+              ansible_port: 35140
+              ansible_user: pa_eidsvc
+        broker:
+          children:
+            master_broker:
+              hosts:
+                aulrmq03:
+                  ansible_host: 172.17.10.135
+                  ansible_port: 35137
+                  ansible_user: pa_eidsvc
+                  brokerName: broker-b
+            slave_broker:
+              hosts:
+                aulrmq04:
+                  ansible_host: 172.17.10.135
+                  ansible_port: 35140
+                  ansible_user: pa_eidsvc
+                  brokerName: broker-b
+      vars:
+        cluster_name: eidPublicRMQ
+        namesrvAddr: "192.168.8.145:9876;192.168.12.142:9876"
+    Testing_private:
+      children:
+        nameserver:
+          hosts:
+            aulrmq14:
+              ansible_host: 172.17.10.135
+              ansible_port: 35054
+              ansible_user: pa_eidsvc
+        broker:
+          children:
+            master_broker:
+              hosts:
+                aulrmq13:
+                  ansible_host: 172.17.10.135
+                  ansible_port: 35010
+                  ansible_user: pa_eidsvc
+                  brokerName: broker-b
+            slave_broker:
+              hosts:
+                aulrmq14:
+                  ansible_host: 172.17.10.135
+                  ansible_port: 35054
+                  ansible_user: pa_eidsvc
+                  brokerName: broker-b
+      vars:
+        cluster_name: eidPrivateRMQ
+        namesrvAddr: "192.168.8.59:9876;192.168.8.58:9876"
+    Production_public:
+      children:
+        nameserver:
+          hosts:
+        broker:
+          children:
+            master_broker:
+              hosts:
+            slave_broker:
+              hosts:
+      vars:
+        cluster_name: eidPublicRMQ
+        namesrvAddr: ""
+    Production_private:
+      children:
+        nameserver:
+          hosts:
+        broker:
+          children:
+            master_broker:
+              hosts:
+            slave_broker:
+              hosts:
+      vars:
+        cluster_name: eidPrivateRMQ
+        namesrvAddr: ""

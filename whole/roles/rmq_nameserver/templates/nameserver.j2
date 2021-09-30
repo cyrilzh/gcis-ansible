@@ -5,6 +5,7 @@ After=defaut.target
 [Service]
 Type=forking
 ExecStart=/usr/local/sbin/runmqnamesrv
+ExecStop=/data/mq_admin/rocketmq-all-4.5.1/bin/mqshutdown namesrv
 
 [Install]
 WantedBy=defaut.target

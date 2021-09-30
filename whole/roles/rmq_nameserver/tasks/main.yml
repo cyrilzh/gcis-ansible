@@ -4,7 +4,7 @@
     src: templates/runmqnamesrv.j2
     dest: /usr/local/sbin/runmqnamesrv
     owner: mq_admin
-    group: wheel
+    group: root
     mode: 0755
 
 - name: Create rocketmq nameserver service
@@ -12,10 +12,12 @@
     src: templates/nameserver.j2
     dest: /etc/systemd/system/rmqnameserver.service
     owner: mq_admin
-    group: wheel
+    group: root
     mode: 0644
 
 - name: Start nameserver service
-  shell: |
-    sudo systemctl daemon-reload
-    sudo systemctl enable rmqnameserver.service
+  systemd:
+    name: rmqnameserver
+    daemon_reload: yes
+    enabled: yes
+    state: restarted

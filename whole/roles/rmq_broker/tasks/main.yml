@@ -4,7 +4,7 @@
     src: templates/config.j2
     dest: /data/mq_admin/rocketmq-all-4.5.1/conf/eidbroker.config
     owner: mq_admin
-    group: wheel
+    group: root
     mode: 0644
 
 - name: Create command file
@@ -12,7 +12,7 @@
     src: templates/runmqbroker.j2
     dest: /usr/local/sbin/runmqbroker
     owner: mq_admin
-    group: wheel
+    group: root
     mode: 0755
 
 - name: Create rocketmq broker service
@@ -20,14 +20,10 @@
     src: templates/broker.j2
     dest: /etc/systemd/system/rmqbroker.service
     owner: mq_admin
-    group: wheel
+    group: root
     mode: 0644
 
-- name: Start smart_agent service
-  shell: |
-    sudo systemctl daemon-reload
-    sudo systemctl enable rmqbroker.service
-
+# Use certificates with 2048 bits of key
 - name: Creates etc rocketmq directory
   file:
     path: /etc/rocketmq
@@ -35,15 +31,13 @@
     mode: "0755"
     owner: mq_admin
     group: mq_admin
-
 - name: Create tls.properties
   template:
     src: templates/tls.properties.j2
     dest: /etc/rocketmq/tls.properties
     owner: mq_admin
-    group: wheel
+    group: root
     mode: "0644"
-
 - name: Copy Certificate files
   copy:
     src: "{{ item }}"
@@ -68,3 +62,10 @@
     path: /data/mq_admin/rocketmq-all-4.5.1/lib/netty-tcnative-boringssl-static-1.1.33.Fork26.jar
     state: absent
     force: yes
+
+- name: Start broker service
+  systemd:
+    name: rmqbroker
+    daemon_reload: yes
+    enabled: yes
+    state: restarted

@@ -1,0 +1,3 @@
+fileReservedTime: 120
+storePathRootDir: /data/mq_admin/store
+storePathCommitLog: /data/mq_admin/store/commitlog

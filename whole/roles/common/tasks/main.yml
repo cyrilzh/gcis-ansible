@@ -1,46 +1,13 @@
 ---
-- name: Rename server
-  ansible.builtin.hostname:
-    name: "{{ newName }}"
-- name: Add hostname to /etc/hosts
-  lineinfile:
-    path: /etc/hosts
-    regexp: "{{legacyName}}"
-    line: "{{newIP}} {{ newName }}"
-    state: present
+- name: Find all of the configure file inside this directory
+  find:
+    paths: [/data/mq_admin/rocketmq-all-4.5.1/conf]
+    patterns: "logback_*.xml"
+  register: logback
 
-- name: Check DNS resolv.conf file
-  stat:
-    path: /etc/resolv.conf
-  register: resolv
-- name: Update DNS resolv.conf file
-  template:
-    src: resolv.conf.j2
-    dest: /etc/resolv.conf
-  when: resolv.stat.exists
-
-- name: Check YUM local-repos.repo file
-  stat:
-    path: /etc/yum.repos.d/local-repos.repo
-  register: yum_repo
-- name: Update YUM local-repos.repo file
-  template:
-    src: local-repos.repo.j2
-    dest: /etc/yum.repos.d/local-repos.repo
-  when: yum_repo.stat.exists
-
-- name: Check NTP ntp.conf file
-  stat:
-    path: /etc/ntp.conf
-  register: ntp_conf
-- name: Update NTP ntp.conf file
-  template:
-    src: ntp.conf.j2
-    dest: /etc/ntp.conf
-  when: ntp_conf.stat.exists
-- name: Restart NTP service
-  systemd:
-    name: ntpd
-    state: restarted
-    enabled: yes
-  when: ntp_conf.stat.exists
+- name: Change Log location
+  replace:
+    path: "{{ item.path }}"
+    regexp: "${user.home}"
+    replace: "/data/mq_admin"
+  with_items: "{{ logback.files }}"

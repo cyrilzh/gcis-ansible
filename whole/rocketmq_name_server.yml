@@ -1,8 +1,9 @@
 ---
 - name: Config RocketMQ Name Servers
-  hosts: all
+  hosts: nameserver
   become: yes
   gather_facts: no
 
   roles:
+    - common
     - rmq_nameserver
